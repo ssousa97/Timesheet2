@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TimesheetUI"
         mc:Ignorable="d"
-        Title="Login" Height="150" Width="350" ResizeMode="NoResize" Keyboard.KeyDown="Entrar">
+        Title="Login" Height="150" Width="350" ResizeMode="NoResize" Keyboard.KeyDown="Entrar" WindowStartupLocation="CenterScreen">
     <Grid>
 
         <Grid.RowDefinitions>

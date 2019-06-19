@@ -137,12 +137,20 @@ namespace TimesheetCore {
         public void IniciarTarefa(TarefaModel tarefa) {
 
             if (TarefaEmExecucao) {
+
                 throw new Exception("Já existe uma tarefa em execução!");
+
             }
 
             if (tarefa.Status == "Concluída") {
 
                 throw new Exception("Não é possível iniciar uma tarefa já finalizada!");
+
+            }
+
+            if(tarefa.TempoEstimado == null || tarefa.Prazo == null){
+
+                throw new Exception("Insira o prazo e o tempo estimado da tarefa!");
 
             }
 
@@ -167,6 +175,24 @@ namespace TimesheetCore {
             TempoSemanalTotal = new TimeSpan((from t in Tarefas select t.TempoSemanal.Ticks).Sum());
 
             Cronometro.Reset();
+
+        }
+
+        public void FinalizarTarefa(TarefaModel tarefa){
+
+            tarefa.Status = "Concluída";
+            tarefa.Conclusao = DateTime.Today;
+
+        }
+
+        public void AdiarTarefa(TarefaModel tarefa) {
+            tarefa.Status = "Pendente";
+        }
+
+        public void ResetarTarefa(TarefaModel tarefa) {
+
+            tarefa.Status = "Em Andamento";
+            tarefa.TempoSemanal = new TimeSpan();
 
         }
      

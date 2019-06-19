@@ -8,11 +8,8 @@ using TimesheetCore;
 using TimesheetData;
 
 namespace TimesheetUI {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+  
     public partial class MainWindow : Window {
-
 
         public MainWindow() {
                  
@@ -62,7 +59,7 @@ namespace TimesheetUI {
 
             try {
 
-                (TimesheetDataGrid.SelectedItem as TarefaModel).Status = "Concluída";
+                Timesheet.FinalizarTarefa(TimesheetDataGrid.SelectedItem as TarefaModel);
 
             }
             catch (Exception ex) {
@@ -75,7 +72,8 @@ namespace TimesheetUI {
 
             try {
 
-                (TimesheetDataGrid.SelectedItem as TarefaModel).Status = "Pendente";
+                Timesheet.AdiarTarefa(TimesheetDataGrid.SelectedItem as TarefaModel);
+
             }
             catch (Exception ex) {
 
@@ -87,9 +85,7 @@ namespace TimesheetUI {
 
             try {
 
-                var tarefa = TimesheetDataGrid.SelectedItem as TarefaModel;
-                tarefa.Status = "Em Andamento";
-                tarefa.TempoSemanal = new TimeSpan();
+                Timesheet.ResetarTarefa(TimesheetDataGrid.SelectedItem as TarefaModel);
 
             }
             catch(Exception ex) {
@@ -128,7 +124,7 @@ namespace TimesheetUI {
 
         private void SetupTimer() {
 
-            var saveTimer = new Timer(1000) {
+            var saveTimer = new Timer(5*60000) {
                 Enabled = true,
                 AutoReset = true
             };
@@ -136,7 +132,6 @@ namespace TimesheetUI {
                 try {
 
                     Timesheet.SalvamentoAutomático();
-                    Debug.WriteLine("Saved");
 
                 }
                 catch (Exception ex) {

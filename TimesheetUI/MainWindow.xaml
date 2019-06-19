@@ -6,13 +6,126 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:TimesheetUI"
         xmlns:model ="clr-namespace:TimesheetCore;assembly=TimesheetCore"
+        xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
         mc:Ignorable="d"
-        Title="Timesheet" Height="650" Width="1200"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+        Title="Timesheet" Height="650" Width="1500"
         Closed="Window_Closed">
 
     <Window.DataContext>
         <model:TimesheetModel x:Name="Timesheet"/>
     </Window.DataContext>
+
+    <Window.Resources>
+        
+        <!--Styling control buttons-->
+        <Style x:Key = "ControlButtonStyle" TargetType = "Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+            <Setter Property = "Height" Value = "25"/>
+            <Setter Property = "Width" Value = "auto"/>
+            <Setter Property = "FontSize" Value = "12"/>
+            <Setter Property = "Margin" Value = "5,0,0,0"/>
+        </Style>
+        
+        <!--Styling text content in rows-->
+        <Style x:Key="TextColumnStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+        </Style>
+        
+        <!--Template for TempoSemanal-->
+        <DataTemplate x:Key="TempoSemanalTemplate">
+            <TextBlock TextAlignment="Center">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0:00}:{1:00}:{2:00}">
+                        <Binding Path="TempoSemanal.Hours"/>
+                        <Binding Path="TempoSemanal.Minutes"/>
+                        <Binding Path="TempoSemanal.Seconds"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </DataTemplate>
+        
+        <!--Styling rows-->
+        <Style TargetType="DataGridRow" x:Key="StyleRows">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="DemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+
+            <!--Change colors based on status-->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Em Andamento">
+                    <Setter Property="Background" Value="LightGray"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Em Execução">
+                    <Setter Property="Background" Value="#337ab7"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Concluída">
+                    <Setter Property="Background" Value="#66bb6a"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Pendente">
+                    <Setter Property="Background" Value="#fff176"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Atrasada">
+                    <Setter Property="Background" Value="#EF5350"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!--Styling column headers-->
+        <Style TargetType="DataGridColumnHeader" x:Key="HeaderStyle" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+        </Style>
+
+        <!--Tempo total template-->
+        <DataTemplate x:Key="TempoTotalTemplate">
+            <TextBlock TextAlignment="Center">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0:00}:{1:00}:{2:00}">
+                        <Binding Path="TempoTotal.Hours"/>
+                        <Binding Path="TempoTotal.Minutes"/>
+                        <Binding Path="TempoTotal.Seconds"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </DataTemplate>
+
+        <DataTemplate x:Key="PrazoTemplate">
+            <TextBlock Text="{Binding Prazo, StringFormat={}{0:dd/MM/yyyy},ValidatesOnDataErrors=True}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="PrazoEditingTemplate">
+            <DatePicker SelectedDate="{Binding Path=Prazo,Mode=TwoWay,ValidatesOnDataErrors=True}" SelectedDateFormat="Short"/>
+        </DataTemplate>
+
+        <Style TargetType="DataGridCell" x:Key="PlayPauseStyle">
+            <EventSetter Event="MouseDoubleClick" Handler="PlayPauseTarefa"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <DataTemplate x:Key="PlayPauseTemplate">
+            <materialDesign:PackIcon Kind="PlayCircle" Width="auto" Height="auto" Foreground="#0077c2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ConclusaoTemplate">
+            <TextBlock Text="{Binding Conclusao, StringFormat={}{0:dd/MM/yyyy}}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ControleTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Finalizar" Click="FinalizarTarefa" Style="{StaticResource ControlButtonStyle}"/>
+                <Button Content="Adiar" Click="AdiarTarefa" Style="{StaticResource ControlButtonStyle}"/>
+                <Button Content="Resetar" Click="ResetarTarefa" Style="{StaticResource ControlButtonStyle}"/>
+
+            </StackPanel>
+        </DataTemplate>
+
+    </Window.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -24,149 +137,48 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.Row="0" Margin="10" AutoGenerateColumns="False" x:Name="TimesheetDataGrid" ItemsSource="{Binding Tarefas}">
-
-            <DataGrid.RowStyle>
-                <Style TargetType="{x:Type DataGridRow}">
-                    <Setter Property="FontSize" Value="15"/>
-                    <Setter Property="FontWeight" Value="Bold"/>
-
-                    <!--Trigger when Status change-->
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Status}" Value="Em Andamento">
-                            <Setter Property="Background" Value="LightGray"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Status}" Value="Em Execução">
-                            <Setter Property="Background" Value="#337ab7"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Status}" Value="Concluída">
-                            <Setter Property="Background" Value="#66bb6a"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Status}" Value="Pendente">
-                            <Setter Property="Background" Value="#fff176"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Status}" Value="Atrasada">
-                            <Setter Property="Background" Value="#EF5350"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                    
-                </Style>
-            </DataGrid.RowStyle>
-
-            <DataGrid.ColumnHeaderStyle>
-                <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="FontSize" Value="15"/>
-                    <Setter Property="FontWeight" Value="Bold"/>
-                </Style>
-            </DataGrid.ColumnHeaderStyle>
-
-            <DataGrid.RowHeaderStyle>
-                <Style TargetType="{x:Type DataGridRowHeader}">
-                    <EventSetter Event="MouseDoubleClick" Handler="PlayPauseTarefa"/>
-                </Style>
-            </DataGrid.RowHeaderStyle>
-
-            <DataGrid.RowHeaderTemplate>
-                <DataTemplate>
-                    <Image Source="./Resources/PlayBtn.png"
-                           Width="15"
-                           Height="10"/>
-                </DataTemplate>
-            </DataGrid.RowHeaderTemplate>
-
+        <DataGrid Grid.Row="0"
+                  Margin="10"
+                  AutoGenerateColumns="False"
+                  x:Name="TimesheetDataGrid"
+                  ItemsSource="{Binding Tarefas}"
+                  RowStyle="{StaticResource StyleRows}"
+                  ColumnHeaderStyle="{StaticResource HeaderStyle}">
+            
             <DataGrid.Columns>
 
-                <DataGridTextColumn Header="Nome"
-                                    Binding="{Binding Nome, ValidatesOnDataErrors=True}"
-                                    Width="auto"/>
+                <DataGridTemplateColumn CellStyle="{StaticResource PlayPauseStyle}" CellTemplate="{StaticResource PlayPauseTemplate}"/>
 
-                <DataGridTextColumn Header="Status"
-                                    Binding="{Binding Status, Mode=TwoWay}"
-                                    Width="auto"
-                                    IsReadOnly="True"/>
+                <DataGridTextColumn Header="Nome" Binding="{Binding Nome, ValidatesOnDataErrors=True}" Width="*" ElementStyle="{StaticResource TextColumnStyle}"/>
 
-                <DataGridTextColumn Header="Tempo Estimado"
-                                    Binding="{Binding TempoEstimado, ValidatesOnDataErrors=True}"
-                                    Width="auto"
-                                    TextBlock.TextAlignment="Center">
-                </DataGridTextColumn>
+                <DataGridTextColumn Header="Status" Binding="{Binding Status, Mode=TwoWay}" Width="auto" IsReadOnly="True" ElementStyle="{StaticResource TextColumnStyle}"/>
 
-                <DataGridTemplateColumn Header="Tempo Semanal" IsReadOnly="True" Width="auto">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock TextAlignment="Center">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0:00}:{1:00}:{2:00}">
-                                        <Binding Path="TempoSemanal.Hours"/>
-                                        <Binding Path="TempoSemanal.Minutes"/>
-                                        <Binding Path="TempoSemanal.Seconds"/>
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Tempo Estimado" Binding="{Binding TempoEstimado, ValidatesOnDataErrors=True}" Width="auto" ElementStyle="{StaticResource TextColumnStyle}"/>
+                
+                <DataGridTemplateColumn Header="Tempo Semanal" IsReadOnly="True" Width="auto" CellTemplate="{StaticResource TempoSemanalTemplate}"/>
 
-                <DataGridTemplateColumn Header="Tempo Total" IsReadOnly="True" Width="auto">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock TextAlignment="Center">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0:00}:{1:00}:{2:00}">
-                                        <Binding Path="TempoTotal.Hours"/>
-                                        <Binding Path="TempoTotal.Minutes"/>
-                                        <Binding Path="TempoTotal.Seconds"/>
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Tempo Total" IsReadOnly="True" Width="auto" CellTemplate="{StaticResource TempoTotalTemplate}"/>
 
                 <DataGridComboBoxColumn Header="Projetos" x:Name="ComboBoxProjetos" SelectedValueBinding="{Binding Projeto}"/>
 
-                <DataGridTemplateColumn Header="Prazo">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Prazo, StringFormat={}{0:dd/MM/yyyy},ValidatesOnDataErrors=True}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
+                <DataGridTemplateColumn Header="Prazo" CellTemplate="{StaticResource PrazoTemplate}" CellEditingTemplate="{StaticResource PrazoEditingTemplate}"/>
 
-                    <DataGridTemplateColumn.CellEditingTemplate>
-                        <DataTemplate>
-                            <DatePicker SelectedDate="{Binding Path=Prazo,Mode=TwoWay,ValidatesOnDataErrors=True}" SelectedDateFormat="Short"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellEditingTemplate>
-                </DataGridTemplateColumn>
-
-                <DataGridTemplateColumn Header="Conclusão">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Conclusao, StringFormat={}{0:dd/MM/yyyy}}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Conclusão" CellTemplate="{StaticResource ConclusaoTemplate}"/>
 
                 <DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="*"/>
 
-                <DataGridTemplateColumn Header="Controle" Width="auto">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Finalizar" Click="FinalizarTarefa"></Button>
-                                <Button Content="Adiar" Click="AdiarTarefa"></Button>
-                                <Button Content="Resetar" Click="ResetarTarefa"></Button>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Controle" Width="auto" CellTemplate="{StaticResource ControleTemplate}"/>
 
             </DataGrid.Columns>
         </DataGrid>
+        
         <StackPanel Margin="10" Grid.Row="2" Orientation="Horizontal">
-            <TextBlock Text="{Binding Responsavel}" Width="auto" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            
+            <Button Content="Exportar" Margin="5" FontSize="18" Click="ExportarTarefas" VerticalAlignment="Center"/>
 
-            <TextBlock Width="auto" FontSize="18" VerticalAlignment="Center" FontWeight="Bold">
+            <TextBlock Text="{Binding Responsavel}" Width="auto" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,5,0"/>
+
+            <TextBlock Width="auto" FontSize="15" VerticalAlignment="Center" FontWeight="Bold">
                 <TextBlock.Text>
                     <MultiBinding StringFormat="{}{0:00}:{1:00}:{2:00}">
                         <Binding Path="TempoSemanalTotal.Hours"/>
@@ -175,7 +187,8 @@
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
-            <Button Content="Exportar" Margin="5" FontSize="15" Click="ExportarTarefas" VerticalAlignment="Center"/>
+
+
         </StackPanel>
     </Grid>
 </Window>

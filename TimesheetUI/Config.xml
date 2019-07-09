@@ -3,5 +3,8 @@
   
   <Responsavel Value="Dev"/>
   <Projetos Value="SimuladorEDF,SimuladorCSA,SIMple,solidThinking Altair,Marinha do Brasil,Outros"/>
+  <FtpServer Value="SIMULADOR-06"/>
+  <FtpUser Value="Simulador"/>
+  <FtpPass Value ="Senha@123"/>
 
 </Configurações>

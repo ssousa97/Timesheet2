@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="DataLayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UpdateLayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TimesheetCore\TimesheetCore.csproj">

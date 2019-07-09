@@ -33,7 +33,7 @@ namespace TimesheetCore {
             }
         }
 
-        private bool TarefaEmExecucao;
+        public bool TarefaEmExecucao;
 
         private readonly Stopwatch Cronometro = new Stopwatch();
 
@@ -134,6 +134,18 @@ namespace TimesheetCore {
             }
         }
 
+        public void AtualizarTempoPorSegundo() {
+            var tarefa = (from t in Tarefas where t.Status == "Em Execução" select t).FirstOrDefault();
+
+            Cronometro.Stop();
+            tarefa.TempoSemanal += Cronometro.Elapsed;
+            tarefa.TempoTotal += Cronometro.Elapsed;
+            Cronometro.Restart();
+
+            TempoSemanalTotal = new TimeSpan((from t in Tarefas select t.TempoSemanal.Ticks).Sum());
+
+        }
+
         public void IniciarTarefa(TarefaModel tarefa) {
 
             if (TarefaEmExecucao) {
@@ -186,6 +198,7 @@ namespace TimesheetCore {
         }
 
         public void AdiarTarefa(TarefaModel tarefa) {
+
             tarefa.Status = "Pendente";
         }
 

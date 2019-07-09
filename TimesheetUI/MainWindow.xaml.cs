@@ -23,7 +23,8 @@ namespace TimesheetUI {
 
             InitializeComponent();
 
-            SetupTimer();
+            SetupTimerSalvamentoAutomático();
+            SetupTimerPorSegundo();
 
             ComboBoxProjetos.ItemsSource = Timesheet.Projetos;
 
@@ -53,6 +54,8 @@ namespace TimesheetUI {
 
             }
 
+            TimesheetDataGrid.UnselectAll();
+
         }
 
         private void FinalizarTarefa(object sender, RoutedEventArgs e) {
@@ -66,7 +69,11 @@ namespace TimesheetUI {
 
                 MessageBox.Show(ex.Message);
             }
+
+            TimesheetDataGrid.UnselectAll();
         }
+
+
 
         private void AdiarTarefa(object sender, RoutedEventArgs e) {
 
@@ -79,6 +86,8 @@ namespace TimesheetUI {
 
                 MessageBox.Show(ex.Message);
             }
+
+            TimesheetDataGrid.UnselectAll();
         }
 
         private void ResetarTarefa(object sender, RoutedEventArgs e) {
@@ -94,6 +103,8 @@ namespace TimesheetUI {
 
             }
 
+            TimesheetDataGrid.UnselectAll();
+
         }
 
         private async void ExportarTarefas(object sender, RoutedEventArgs e) {
@@ -106,6 +117,7 @@ namespace TimesheetUI {
 
                 MessageBox.Show(ex.Message);
             }
+
         }
 
         private void Window_Closed(object sender, EventArgs e) {
@@ -122,7 +134,7 @@ namespace TimesheetUI {
             }
         }
 
-        private void SetupTimer() {
+        private void SetupTimerSalvamentoAutomático() {
 
             var saveTimer = new Timer(5*60000) {
                 Enabled = true,
@@ -139,6 +151,28 @@ namespace TimesheetUI {
                 }
 
             };
+        }
+
+        private void SetupTimerPorSegundo() {
+
+            var timerSegundo = new Timer(1000) {
+                Enabled = true,
+                AutoReset = true
+            };
+
+            timerSegundo.Elapsed += (s, e) => {
+
+                if (Timesheet.TarefaEmExecucao) {
+                    try {
+                        Timesheet.AtualizarTempoPorSegundo();
+                    }
+                    catch (Exception ex) {
+                        MessageBox.Show(ex.Message);
+                    }
+                }
+
+            };            
+
         }
     }
 }

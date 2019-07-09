@@ -8,12 +8,11 @@
         xmlns:model ="clr-namespace:TimesheetCore;assembly=TimesheetCore"
         xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
         mc:Ignorable="d"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        Background="{DynamicResource MaterialDesignPaper}"
+        
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-        Title="Timesheet" Height="650" Width="1500"
+        Title="Timesheet 2.0" Height="650" Width="1500"
         Closed="Window_Closed">
 
     <Window.DataContext>
@@ -187,8 +186,6 @@
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
-
-
         </StackPanel>
     </Grid>
 </Window>
